@@ -27,7 +27,18 @@ const controlResults = async function () {
     }
 };
 
+const controlPagination = function (goToPage) {
+    // 1) Render new results
+    // console.log(model.state.search.results);
+    // resultsView.render(model.state.search.results)
+    resultsView.render(model.getResults(goToPage));
+
+    // 4) Render initial pagination buttons
+    paginationView.render(model.state.search);
+};
+
 const init = function () {
-    resultsView.addHandler(controlResults)
+    resultsView.addHandler(controlResults);
+    paginationView.addHandlerClick(controlPagination);
 };
 init();

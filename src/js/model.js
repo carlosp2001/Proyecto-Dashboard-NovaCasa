@@ -15,11 +15,10 @@ export const state = {
 
 export const loadResults = async function () {
     try {
-        console.log('Hola');
         const data = await AJAX(`http://localhost:8080/api/v1/properties`);
 
         state.search.results = data.data.properties;
-        console.log(state.search.results);
+        // console.log(state.search.results);
         state.search.page = 1;
     } catch (err) {
         console.error(`${err} 💥💥💥💥`);

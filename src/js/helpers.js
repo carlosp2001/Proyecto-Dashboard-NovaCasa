@@ -24,7 +24,7 @@ export const AJAX = async function (url) {
         const fetchPro = await fetch(url);
         const data = await fetchPro.json();
 
-        console.log(data);
+        // console.log(data);
         // const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
         // const data = await res.json();
 

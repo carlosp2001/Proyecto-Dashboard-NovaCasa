@@ -472,3 +472,7 @@ table.table .avatar {
 .pagination__btn--next {
     float: right;
 }
+
+.pagination li.active a.page-link {
+  background-color: rgb(81, 177, 180);
+}
