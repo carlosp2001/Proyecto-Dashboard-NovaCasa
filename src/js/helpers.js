@@ -35,3 +35,5 @@ export const AJAX = async function (url) {
         throw err;
     }
 };
+
+

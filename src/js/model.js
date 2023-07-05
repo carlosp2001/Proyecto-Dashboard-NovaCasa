@@ -32,3 +32,9 @@ export const getResults = function (page = state.search.page) {
     const end = page * state.search.resultsPerPage; // 9
     return state.search.results.slice(start, end);
 };
+
+export const importProperties = async function () {
+    const result = await AJAX(`http://localhost:8080/importProperties`);
+
+    return result;
+};

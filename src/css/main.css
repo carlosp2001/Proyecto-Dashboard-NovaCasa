@@ -135,7 +135,7 @@ ui-tabs-nav li a i {
 /*CRUD*/
 .table-wrapper {
     background: #fff;
-    padding: 50px 25px;
+    padding: 40px 40px;
     margin: 30px 0;
     border-radius: 3px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -143,10 +143,11 @@ ui-tabs-nav li a i {
 
 .table-title {
     padding-bottom: 5px;
-    background: #7f8892;
-    color: #fff;
+    /* background: #7f8892; */
+    color: #7f8892;
     padding: 1px;
-    margin: -20px -25px 10px;
+    margin-bottom: 10px;
+
     /* border-radius: 3px 3px 0 0; */
 }
 
@@ -425,12 +426,13 @@ table.table .avatar {
 }
 
 .popup-guardado {
-    display: none;
     width: 100vw;
     height: 100vh;
     position: fixed;
     -webkit-backdrop-filter: blur(7px);
-    backdrop-filter: blur(7px);
+    /* backdrop-filter: blur(7px); */
+    display: flex;
+    z-index: 5;
     justify-content: center;
 }
 
@@ -451,7 +453,7 @@ table.table .avatar {
     transform: translateY(-10%);
     width: 50%;
     align-self: center;
-    background-color: cornsilk;
+    background-color: rgb(187, 220, 222);
 } /*# sourceMappingURL=autosregistro.css.map */
 
 .pagination {
@@ -474,5 +476,37 @@ table.table .avatar {
 }
 
 .pagination li.active a.page-link {
-  background-color: rgb(81, 177, 180);
+    background-color: rgb(81, 177, 180);
+}
+
+#import-button {
+    cursor: pointer;
+}
+
+.spinner,
+.check,
+.alert {
+    text-align: center;
+}
+
+.spinner svg {
+    margin-top: 20px;
+    height: 6rem;
+    width: 6rem;
+    animation: 2s linear infinite rotate;
+}
+
+.check svg {
+    height: 6rem;
+    width: 6rem;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

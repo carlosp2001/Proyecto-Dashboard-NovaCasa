@@ -33,6 +33,44 @@
     </head>
     <body>
         <div id="app" class="container-fluid h-100">
+            <div class="popup-container">
+                <!-- <div class="popup-guardado">
+                    <div class="popup">
+                        <div class="popup-inner">
+                            <h1>
+                                Texto prueba!
+                                <i class="fas fa-check"></i>
+                            </h1>
+                            <p>
+                                <a
+                                    href="#"
+                                    class="btn btn-success"
+                                    id="cerrar-popup-save"
+                                    >Cerrar</a
+                                >
+                            </p>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+            <!-- <div class="popup-guardado">
+                <div class="popup">
+                    <div class="popup-inner">
+                        <h1>
+                            Texto prueba!
+                            <i class="fas fa-check"></i>
+                        </h1>
+                        <p>
+                            <a
+                                href="#"
+                                class="btn btn-success"
+                                id="cerrar-popup-save"
+                                >Cerrar</a
+                            >
+                        </p>
+                    </div>
+                </div>
+            </div> -->
             <nav class="navbar navbar-expand-lg navbar-dark navbg">
                 <div>
                     <img
@@ -107,6 +145,8 @@
                     </ul>
                 </div>
             </nav>
+            
+            <div class="clearfix"></div>
             <section class="main container-fluid h-100">
                 <div class="row justify-content-center h-100">
                     <!-- <div class="sidebar d-none d-lg-block d-xl-block" id="yellow">
@@ -148,8 +188,13 @@
                         <div class="table-wrapper">
                             <div class="table-title">
                                 <div class="row">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-9">
                                         <h2>Administrar <b>Propiedades</b></h2>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div id="import-button">
+                                            <span class="mr-2"><i class="fas fa-sync-alt"></i></i></span>Importar propiedades
+                                        </div>
                                     </div>
                                     <!-- <div class="col-sm-6">
                     <a class="btn btn-success" id="btn-agregar"
@@ -165,7 +210,7 @@
                                         <th>Id</th>
                                         <th style="width: 15%;">Titulo de la Propiedad</th>
                                         <th style="width: 10%;">Baños</th>
-                                        <th style="width: 10%;">Construccion</th>
+                                        <th style="width: 10%;"><i class="fas fa-home"></i></th>
                                         <th style="width: 7%;"><i class="fas fa-car"></i></th>
                                         <th style="width: 7%;">Estado</th>
                                         <th>Precio</th>
@@ -173,7 +218,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <!-- <tr>
                                         <td>1</td>
                                         <td>Propiedad</td>
                                         <td>4</td>
@@ -190,10 +235,10 @@
                                         <td>2</td>
                                         <td>Disponible</td>
                                         <td>Precio</td>
-                                    </tr>
+                                    </tr> -->
                                 </tbody>
+                                
                             </table>
-                            <div class="clearfix"></div>
                             <nav>
                                 <ul class="pagination">
                                     <!-- <li class="page-item"><a class="page-link" href="#1">Previous</a></li>
@@ -203,26 +248,11 @@
                                     <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
                                 </ul>
                               </nav>
+                            <div class="clearfix"></div>
+                            
                         </div>
                     </div>
-                    <div class="popup-guardado">
-                        <div class="popup">
-                            <div class="popup-inner">
-                                <h1>
-                                    Auto Guardado Exitosamente!
-                                    <i class="fas fa-check"></i>
-                                </h1>
-                                <p>
-                                    <a
-                                        href="#"
-                                        class="btn btn-success"
-                                        id="cerrar-popup-save"
-                                        >Cerrar</a
-                                    >
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                
                     <div class="popup-errores" id="popup-errores">
                         <div class="popup">
                             <div class="popup-inner">
