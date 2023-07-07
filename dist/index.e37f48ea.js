@@ -600,6 +600,9 @@ const controlResults = async function() {
         (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
     } catch (err) {
         console.log(err);
+        (0, _importPropertiesViewJsDefault.default)._errorMessage = err;
+        (0, _importPropertiesViewJsDefault.default).renderError();
+        console.log(err);
     }
 };
 const controlPagination = function(goToPage) {
@@ -643,14 +646,16 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadResults", ()=>loadResults);
 parcelHelpers.export(exports, "getResults", ()=>getResults);
+parcelHelpers.export(exports, "getFacebookResults", ()=>getFacebookResults);
 parcelHelpers.export(exports, "importProperties", ()=>importProperties);
 var _helpersJs = require("./helpers.js");
-const API_URL = "http://127.0.0.1:8080/api/v1/properties";
+const API_URL = "http://localhost:8080";
 const state = {
     property: {},
     search: {
         query: "",
         results: [],
+        resultsFacebook: [],
         page: 1,
         resultsPerPage: 10
     },
@@ -658,13 +663,16 @@ const state = {
 };
 const loadResults = async function() {
     try {
-        const data = await (0, _helpersJs.AJAX)(`http://localhost:8080/api/v1/properties`);
+        const data = await (0, _helpersJs.AJAX)(`${API_URL}/api/v1/properties`);
         state.search.results = data.data.properties;
+        const dataFacebook = await (0, _helpersJs.AJAX)(`http://localhost:8080/api/v1/propertiesFacebook`);
         // console.log(state.search.results);
+        state.search.resultsFacebook = dataFacebook.data.properties;
+        console.log(state.search.resultsFacebook);
         state.search.page = 1;
     } catch (err) {
-        console.error(`${err} 💥💥💥💥`);
-        throw err;
+        console.error(`Error intentando obtener los datos! 💥💥💥💥`);
+        throw new Error(`Error intentando obtener los datos! 💥💥💥💥`);
     }
 };
 const getResults = function(page = state.search.page) {
@@ -672,6 +680,9 @@ const getResults = function(page = state.search.page) {
     const start = (page - 1) * state.search.resultsPerPage; // 0
     const end = page * state.search.resultsPerPage; // 9
     return state.search.results.slice(start, end);
+};
+const getFacebookResults = function() {
+    return state.search.resultsFacebook;
 };
 const importProperties = async function() {
     const result = await (0, _helpersJs.AJAX)(`http://localhost:8080/importProperties`);
@@ -753,6 +764,7 @@ var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 // import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var _modelJs = require("../model.js");
 class ResultsView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".table-data").querySelector("tbody");
     _errorMessage = "No recipes found for your query! Please try again";
@@ -765,6 +777,9 @@ class ResultsView extends (0, _viewJsDefault.default) {
     }
     _generateMarkupPreview(result) {
         // const id = window.location.hash.slice(1);
+        const facebookResults = (0, _modelJs.getFacebookResults)();
+        console.log(facebookResults);
+        console.log(facebookResults.find((el)=>el.retailer_id === 20368));
         return `<tr>
         <td>${result.ID || "--"}</td>
         <td>${result.post_title || "--"}</td>
@@ -776,6 +791,7 @@ class ResultsView extends (0, _viewJsDefault.default) {
             style: "currency",
             currency: result.currency
         }).format(result.property_price)}</td>
+        <td>${facebookResults.find((el)=>el.retailer_id == result.ID) ? `<svg class="check-icon"><use href="${0, _iconsSvgDefault.default}#icon-check"></use></svg>` : `<svg class="x-icon"><use href="${0, _iconsSvgDefault.default}#icon-x"></use></svg>`}</td>
     </tr>`;
     }
     renderSpinner() {
@@ -796,7 +812,7 @@ class ResultsView extends (0, _viewJsDefault.default) {
 }
 exports.default = new ResultsView();
 
-},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}],"5cUXS":[function(require,module,exports) {
+},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp","../model.js":"Y4A21"}],"5cUXS":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");

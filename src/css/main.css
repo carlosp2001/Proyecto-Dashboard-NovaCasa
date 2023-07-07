@@ -510,3 +510,9 @@ table.table .avatar {
         transform: rotate(360deg);
     }
 }
+
+.check-icon, .x-icon {
+    width: 20px;
+    height: 20px;
+    
+}

@@ -1,7 +1,7 @@
 import View from './View.js';
 // import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
 import icons from 'url:../../img/icons.svg';
-
+import { getFacebookResults } from '../model.js';
 
 class ResultsView extends View {
     _parentElement = document
@@ -22,7 +22,9 @@ class ResultsView extends View {
 
     _generateMarkupPreview(result) {
         // const id = window.location.hash.slice(1);
-
+        const facebookResults = getFacebookResults();
+        console.log(facebookResults);
+        console.log(facebookResults.find((el) => el.retailer_id === 20368));
         return `<tr>
         <td>${result.ID || '--'}</td>
         <td>${result.post_title || '--'}</td>
@@ -39,6 +41,11 @@ class ResultsView extends View {
             style: 'currency',
             currency: result.currency,
         }).format(result.property_price)}</td>
+        <td>${
+            facebookResults.find((el) => el.retailer_id == result.ID)
+                ? `<svg class="check-icon"><use href="${icons}#icon-check"></use></svg>`
+                : `<svg class="x-icon"><use href="${icons}#icon-x"></use></svg>`
+        }</td>
     </tr>`;
     }
 
@@ -57,7 +64,6 @@ class ResultsView extends View {
         this._clear();
         this._parentElement.insertAdjacentHTML('afterbegin', markup);
     }
-    
 }
 
 export default new ResultsView();

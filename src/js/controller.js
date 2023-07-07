@@ -26,6 +26,9 @@ const controlResults = async function () {
         paginationView.render(model.state.search);
     } catch (err) {
         console.log(err);
+        importPropertiesView._errorMessage = err;
+        importPropertiesView.renderError();
+        console.log(err);
     }
 };
 

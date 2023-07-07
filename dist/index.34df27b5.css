@@ -485,4 +485,9 @@ table.table .avatar {
   }
 }
 
+.check-icon, .x-icon {
+  width: 20px;
+  height: 20px;
+}
+
 /*# sourceMappingURL=index.34df27b5.css.map */

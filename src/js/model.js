@@ -1,5 +1,5 @@
 import {AJAX} from './helpers.js';
-const API_URL = 'http://127.0.0.1:8080/api/v1/properties';
+const API_URL = 'http://localhost:8080';
 
 
 export const state = {
@@ -7,6 +7,7 @@ export const state = {
     search: {
         query: '',
         results: [],
+        resultsFacebook: [],
         page: 1,
         resultsPerPage: 10
     },
@@ -15,14 +16,20 @@ export const state = {
 
 export const loadResults = async function () {
     try {
-        const data = await AJAX(`http://localhost:8080/api/v1/properties`);
+        const data = await AJAX(`${API_URL}/api/v1/properties`);
 
         state.search.results = data.data.properties;
+        const dataFacebook = await AJAX(`http://localhost:8080/api/v1/propertiesFacebook`)
         // console.log(state.search.results);
+        state.search.resultsFacebook = dataFacebook.data.properties;
+        console.log(state.search.resultsFacebook);
+
+        
+
         state.search.page = 1;
     } catch (err) {
-        console.error(`${err} 💥💥💥💥`);
-        throw err;
+        console.error(`Error intentando obtener los datos! 💥💥💥💥`);
+        throw new Error(`Error intentando obtener los datos! 💥💥💥💥`);
     }
 };
 
@@ -31,6 +38,10 @@ export const getResults = function (page = state.search.page) {
     const start = (page - 1) * state.search.resultsPerPage; // 0
     const end = page * state.search.resultsPerPage; // 9
     return state.search.results.slice(start, end);
+};
+
+export const getFacebookResults = function () {
+    return state.search.resultsFacebook;
 };
 
 export const importProperties = async function () {

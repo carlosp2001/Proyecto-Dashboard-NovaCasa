@@ -99,7 +99,7 @@
                         <li class="nav-item">
                             <a
                                 class="nav-link"
-                                href="http://127.0.0.1:5500/autosregistro.html"
+                                href="/"
                                 ><i class="fa fa-home"></i> Dashboard
                                 <span class="sr-only"></span
                             ></a>
@@ -107,7 +107,7 @@
                         <li class="nav-item">
                             <a
                                 class="nav-link"
-                                href="http://127.0.0.1:5500/alquileresregistro.html"
+                                href="#"
                                 ><i class="fa fa-tachometer-alt"></i> Alquileres
                                 <span class="sr-only"></span
                             ></a>
@@ -149,41 +149,6 @@
             <div class="clearfix"></div>
             <section class="main container-fluid h-100">
                 <div class="row justify-content-center h-100">
-                    <!-- <div class="sidebar d-none d-lg-block d-xl-block" id="yellow">
-						<ul class="ui-tabs-nav">					
-							<li>
-								Campamentos</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">
-									<a class="ui-tabs-anchor">
-										<i class="fa fa-angle-right"></i>
-									Pabellones
-								</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Módulos</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Habitaciones</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Áreas</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Turno</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Parametros</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Perfiles</a>
-							</li>
-							<li>
-								<a class="ui-tabs-anchor">Usuarios</a>
-							</li>
-						</ul>
-					</div> -->
                     <div class="content-wrapper col">
                         <div class="table-wrapper">
                             <div class="table-title">
@@ -252,222 +217,8 @@
                             
                         </div>
                     </div>
-                
-                    <div class="popup-errores" id="popup-errores">
-                        <div class="popup">
-                            <div class="popup-inner">
-                                <h1>
-                                    Error al intentar guardar el auto
-                                    <i class="fas fa-times"></i>
-                                </h1>
-                                <ul id="list-errores">
-                                    <li>Cancelar Orden</li>
-                                </ul>
-                                <p>
-                                    <a
-                                        href="#"
-                                        class="btn btn-danger"
-                                        id="cerrar-popup-errores"
-                                        >Cerrar</a
-                                    >
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Add Modal HTML -->
-                    <!-- <div id="addEmployeeModal">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form>
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Nuevo Auto</h4>
-                                        <button
-                                            type="button"
-                                            class="close"
-                                            id="close-addAuto"
-                                            data-dismiss="modal"
-                                            aria-hidden="true"
-                                        >
-                                            &times;
-                                        </button>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label>Marca</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="marca-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Modelo</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="modelo-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Año</label>
-                                            <input
-                                                type="number"
-                                                min="1980"
-                                                max="2023"
-                                                value="2020"
-                                                class="form-control"
-                                                id="year-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Color</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="color-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Asientos</label>
-                                            <input
-                                                type="number"
-                                                min="2"
-                                                max="8"
-                                                class="form-control"
-                                                id="asientos-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Puertas</label>
-                                            <input
-                                                type="number"
-                                                class="form-control"
-                                                id="puertas-auto"
-                                            />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Motor</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="motor-auto"
-                                            />
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Transmisión</label>
-                                            <select
-                                                class="form-control"
-                                                id="transmision-select"
-                                            >
-                                                <option value="Automática">
-                                                    Automática
-                                                </option>
-                                                <option value="Manual">
-                                                    Manual
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Placa</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="placa-auto"
-                                            />
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Tipo de Auto</label>
-                                            <select
-                                                class="form-control"
-                                                id="tipo-select"
-                                            >
-                                                <option value="1">
-                                                    Turismo
-                                                </option>
-                                                <option value="2">
-                                                    Camioneta
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Precio / dia</label>
-                                            <input
-                                                type="number"
-                                                class="form-control"
-                                                id="precio-auto"
-                                            />
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Distribuidor</label>
-                                            <select
-                                                class="form-control"
-                                                id="distribuidor-select"
-                                            ></select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Oficina</label>
-                                            <select
-                                                class="form-control"
-                                                id="oficina-select"
-                                            ></select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Imagen</label>
-                                            <input
-                                                type="file"
-                                                id="inputImage"
-                                            />
-                                        </div>
-
-                                        <script>
-                                            fetch(
-                                                'http://192.168.1.102:3002/rentaautos/distribuidor/listar'
-                                            )
-                                                .then((res) => {
-                                                    return res.json();
-                                                })
-                                                .then((data) => {
-                                                    data.forEach(
-                                                        (distribuidor) => {
-                                                            document
-                                                                .getElementById(
-                                                                    'distribuidor-select'
-                                                                )
-                                                                .insertAdjacentHTML(
-                                                                    'beforeend',
-                                                                    `<option value="${distribuidor['idDistribuidor']}">${distribuidor['nombreDistribuidor']}</option>`
-                                                                );
-                                                        }
-                                                    );
-                                                });
-
-                                            fetch(
-                                                'http://192.168.1.102:3002/rentaautos/oficina/listar'
-                                            )
-                                                .then((res) => {
-                                                    return res.json();
-                                                })
-                                                .then((data) => {
-                                                    data.forEach((oficina) => {
-                                                        document
-                                                            .getElementById(
-                                                                'oficina-select'
-                                                            )
-                                                            .insertAdjacentHTML(
-                                                                'beforeend',
-                                                                `<option value="${oficina['idOficina']}">${oficina['nombreOficina']}</option>`
-                                                            );
-                                                    });
-                                                });
-                                        </script> -->
-                                    </div>
-                                    <div class="modal-footer">
+                                    <!-- <div class="modal-footer">
                                         <input
                                             type="button"
                                             class="btn btn-default"
@@ -479,7 +230,7 @@
                                             id="agregar-btn"
                                             value="Agregar"
                                         />
-                                    </div>
+                                    </div> -->
                                 </form>
                             </div>
                         </div>
