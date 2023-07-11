@@ -2,29 +2,49 @@ import * as model from './model.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import importPropertiesView from './views/importPropertiesView.js';
+import configAppView from './views/catalogConfigView.js';
 
 const controlResults = async function () {
     try {
-        // resultsView.renderSpinner();
-        // 1) Get search query
-        // const query = resultsView.getQuery();
-        // if (!query) return;
+        // 1) Se realiza la autenticación de facebook
+        await model.checkFacebookAuth();
+        console.log(model.state.user.catalogs);
 
-        // 2) Load search results
+        if (!model.checkForCatalog()) {
+            // 2) Si la autenticación que realice se encuentra del todo bien, se muestra el popup
+            // para seleccionar el catálogo al que se desea importar
+            configAppView.render(
+                (data = model.state.user.catalogs),
+                (onlyRender = true)
+            );
+
+            // 3) Se hace una espera con una promesa hasta que confirme al catálogo que enviaremos
+            await configAppView.catalogSubmit();
+
+            // 4) Se guarda el catálogo seleccionado
+
+            model.saveCatalog(await configAppView.getSelectedCatalog());
+        }
+
+        // 5) Se renderiza el spinner de carga
         resultsView.renderSpinner();
 
+        // 6) Se cargan los resultados
         await model.loadResults();
 
-        // 3) Render results
+        // 7) Se renderizan los resultados
         resultsView.render(model.getResults());
 
         // console.log(model.state.search.results);
         // // resultsView.render(model.state.search.results)
         // resultsView.render(model.getSearchResultsPage());
 
-        // 4) Render initial pagination buttons
+        // 8) Se renderiza la paginación de la pagina
         paginationView.render(model.state.search);
+        configAppView._clear();
     } catch (err) {
+        // En caso de haber algun error en cualquiera de los procedimientos anteriores se
+        // capturara aca y se mostrará en un pop-up con un icono de alerta
         console.log(err);
         importPropertiesView._errorMessage = err;
         importPropertiesView.renderError();
@@ -50,13 +70,13 @@ const controlImportProperties = async function () {
     importPropertiesView._message = 'loading';
     importPropertiesView.render((onlyRender = true));
     const res = await model.importProperties();
-    
+
     if (res.status === 'successful') {
         importPropertiesView._message = 'successful';
         importPropertiesView.render((onlyRender = true));
         await sleep(4);
         importPropertiesView._clear();
-    } else if (res.status === 'fail' ) {
+    } else if (res.status === 'fail') {
         console.log('Hola');
         importPropertiesView._errorMessage = res.message;
         importPropertiesView.renderError();

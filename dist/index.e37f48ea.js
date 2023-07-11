@@ -142,11 +142,11 @@
       this[globalName] = mainExports;
     }
   }
-})({"aD7Zm":[function(require,module,exports) {
+})({"gfkIy":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
-var HMR_SECURE = false;
+var HMR_SECURE = true;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 module.bundle.HMR_BUNDLE_ID = "d113fd8ce37f48ea";
 "use strict";
@@ -582,23 +582,37 @@ var _paginationViewJs = require("./views/paginationView.js");
 var _paginationViewJsDefault = parcelHelpers.interopDefault(_paginationViewJs);
 var _importPropertiesViewJs = require("./views/importPropertiesView.js");
 var _importPropertiesViewJsDefault = parcelHelpers.interopDefault(_importPropertiesViewJs);
+var _catalogConfigViewJs = require("./views/catalogConfigView.js");
+var _catalogConfigViewJsDefault = parcelHelpers.interopDefault(_catalogConfigViewJs);
 const controlResults = async function() {
     try {
-        // resultsView.renderSpinner();
-        // 1) Get search query
-        // const query = resultsView.getQuery();
-        // if (!query) return;
-        // 2) Load search results
+        // 1) Se realiza la autenticación de facebook
+        await _modelJs.checkFacebookAuth();
+        console.log(_modelJs.state.user.catalogs);
+        if (!_modelJs.checkForCatalog()) {
+            // 2) Si la autenticación que realice se encuentra del todo bien, se muestra el popup
+            // para seleccionar el catálogo al que se desea importar
+            (0, _catalogConfigViewJsDefault.default).render(data = _modelJs.state.user.catalogs, onlyRender = true);
+            // 3) Se hace una espera con una promesa hasta que confirme al catálogo que enviaremos
+            await (0, _catalogConfigViewJsDefault.default).catalogSubmit();
+            // 4) Se guarda el catálogo seleccionado
+            _modelJs.saveCatalog(await (0, _catalogConfigViewJsDefault.default).getSelectedCatalog());
+        }
+        // 5) Se renderiza el spinner de carga
         (0, _resultsViewJsDefault.default).renderSpinner();
+        // 6) Se cargan los resultados
         await _modelJs.loadResults();
-        // 3) Render results
+        // 7) Se renderizan los resultados
         (0, _resultsViewJsDefault.default).render(_modelJs.getResults());
         // console.log(model.state.search.results);
         // // resultsView.render(model.state.search.results)
         // resultsView.render(model.getSearchResultsPage());
-        // 4) Render initial pagination buttons
+        // 8) Se renderiza la paginación de la pagina
         (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
+        (0, _catalogConfigViewJsDefault.default)._clear();
     } catch (err) {
+        // En caso de haber algun error en cualquiera de los procedimientos anteriores se
+        // capturara aca y se mostrará en un pop-up con un icono de alerta
         console.log(err);
         (0, _importPropertiesViewJsDefault.default)._errorMessage = err;
         (0, _importPropertiesViewJsDefault.default).renderError();
@@ -640,7 +654,7 @@ const init = function() {
 };
 init();
 
-},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb"}],"Y4A21":[function(require,module,exports) {
+},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb","./views/catalogConfigView.js":"4qPEU"}],"Y4A21":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
@@ -648,18 +662,26 @@ parcelHelpers.export(exports, "loadResults", ()=>loadResults);
 parcelHelpers.export(exports, "getResults", ()=>getResults);
 parcelHelpers.export(exports, "getFacebookResults", ()=>getFacebookResults);
 parcelHelpers.export(exports, "importProperties", ()=>importProperties);
+parcelHelpers.export(exports, "logInFacebook", ()=>logInFacebook);
+parcelHelpers.export(exports, "checkFacebookAuth", ()=>checkFacebookAuth);
+parcelHelpers.export(exports, "saveCatalog", ()=>saveCatalog);
+parcelHelpers.export(exports, "checkForCatalog", ()=>checkForCatalog);
 var _helpersJs = require("./helpers.js");
 const API_URL = "http://localhost:8080";
 const state = {
     property: {},
+    user: {
+        user_id: "",
+        business: "",
+        catalog: ""
+    },
     search: {
         query: "",
         results: [],
         resultsFacebook: [],
         page: 1,
         resultsPerPage: 10
-    },
-    bookmarks: []
+    }
 };
 const loadResults = async function() {
     try {
@@ -668,7 +690,7 @@ const loadResults = async function() {
         const dataFacebook = await (0, _helpersJs.AJAX)(`http://localhost:8080/api/v1/propertiesFacebook`);
         // console.log(state.search.results);
         state.search.resultsFacebook = dataFacebook.data.properties;
-        console.log(state.search.resultsFacebook);
+        // console.log(state.search.resultsFacebook);
         state.search.page = 1;
     } catch (err) {
         console.error(`Error intentando obtener los datos! 💥💥💥💥`);
@@ -685,8 +707,66 @@ const getFacebookResults = function() {
     return state.search.resultsFacebook;
 };
 const importProperties = async function() {
-    const result = await (0, _helpersJs.AJAX)(`http://localhost:8080/importProperties`);
+    const result = await (0, _helpersJs.AJAX)(`http://localhost:8080/importProperties?catalog_id=${state.user.catalog.id}`);
     return result;
+};
+const logInFacebook = function() {
+    return new Promise((resolve, reject)=>{
+        FB.login(function(response) {
+            if (response.status === "connected") resolve("connected");
+            else reject("logout");
+        }, {
+            scope: "business_management, catalog_management",
+            return_scopes: true
+        });
+    });
+};
+const checkFacebookAuth = function() {
+    return new Promise((resolve, reject)=>{
+        FB.init({
+            appId: "658573932758488",
+            autoLogAppEvents: true,
+            xfbml: true,
+            version: "v17.0"
+        });
+        FB.getLoginStatus(async function(response) {
+            if (response.status === "connected") {
+                state.user.user_id = response.authResponse.userID;
+                new Promise((resolve, reject)=>{
+                    // Conseguir la el ID del negocio
+                    FB.api("/me/businesses", function(response) {
+                        if (response.data < 3 || !response.data) reject("No hay negocios vinculados con esta cuenta");
+                        state.user.business = response.data[0];
+                        return resolve(state.user.business.id);
+                    });
+                }).then((data)=>{
+                    // Conseguir la lista de los catálogos
+                    FB.api(`/${data}/owned_product_catalogs`, function(response) {
+                        if (!response.data.length) return reject("No hay cat\xe1logos asociados a esta cuenta");
+                        state.user.catalogs = response.data;
+                        return resolve(response);
+                    });
+                }).catch((err)=>{
+                    reject(err);
+                });
+            } else {
+                if (await logInFacebook() === "connected") resolve(checkFacebookAuth());
+                else return reject("Debes iniciar sesi\xf3n");
+            }
+        });
+    });
+};
+const saveCatalog = function(catalogInfo) {
+    localStorage.setItem("catalog", JSON.stringify(catalogInfo));
+    console.log(localStorage);
+};
+const checkForCatalog = function() {
+    const catalog = JSON.parse(localStorage.getItem("catalog"));
+    if (catalog) {
+        state.user.catalog = catalog;
+        console.log(state.user);
+        return true;
+    } else return false;
 };
 
 },{"./helpers.js":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
@@ -694,6 +774,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "timeout", ()=>timeout);
 parcelHelpers.export(exports, "AJAX", ()=>AJAX);
+parcelHelpers.export(exports, "getCookie", ()=>getCookie);
 const TIMEOUT_SEC = 10000;
 const timeout = function(s) {
     return new Promise(function(_, reject) {
@@ -724,6 +805,19 @@ const AJAX = async function(url) {
     } catch (err) {
         throw err;
     }
+};
+const getCookie = function(name) {
+    // Split cookie string and get all individual name=value pairs in an array
+    var cookieArr = document.cookie.split(";");
+    // Loop through the array elements
+    for(var i = 0; i < cookieArr.length; i++){
+        var cookiePair = cookieArr[i].split("=");
+        /* Removing whitespace at the beginning of the cookie name
+        and compare it with the given string */ if (name == cookiePair[0].trim()) // Decode the cookie value and return
+        return decodeURIComponent(cookiePair[1]);
+    }
+    // Return null if not found
+    return null;
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
@@ -767,7 +861,7 @@ var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _modelJs = require("../model.js");
 class ResultsView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".table-data").querySelector("tbody");
-    _errorMessage = "No recipes found for your query! Please try again";
+    _errorMessage = "No se encontraron propiedades! Por favor intenta de nuevo";
     _message = "";
     addHandler(handler) {
         window.addEventListener("load", handler);
@@ -778,8 +872,6 @@ class ResultsView extends (0, _viewJsDefault.default) {
     _generateMarkupPreview(result) {
         // const id = window.location.hash.slice(1);
         const facebookResults = (0, _modelJs.getFacebookResults)();
-        console.log(facebookResults);
-        console.log(facebookResults.find((el)=>el.retailer_id === 20368));
         return `<tr>
         <td>${result.ID || "--"}</td>
         <td>${result.post_title || "--"}</td>
@@ -1061,6 +1153,80 @@ class importPropertiesView extends (0, _viewJsDefault.default) {
 }
 exports.default = new importPropertiesView();
 
-},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}]},["aD7Zm","aenu9"], "aenu9", "parcelRequire0e80")
+},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}],"4qPEU":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("./View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+// import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
+class configAppView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector(".popup-container");
+    _catalogElement = "";
+    _dataCatalog = "";
+    _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
+    _message = "";
+    _messageContent = "";
+    addHandler(handler) {
+        document.querySelector("#import-button").addEventListener("click", handler);
+    }
+    _generateMarkup() {
+        return `<div class="popup-guardado">
+        <div class="popup">
+                <div class="popup-inner">
+                    <form class="form-group catalog-form">
+                        <label for="catalog-select">Selecciona el catalogo:</label>
+                        <select class="form-control" id="catalog-select">
+                            ${this._data.map((el)=>`<option value=${el.id} >${el.name}</option>`)}
+                        </select>
+                        <br>
+                        <button type="submit" class="btn btn-primary btn-catalog">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    }
+    getSelectedCatalog() {
+        this._catalogElement = document.querySelector("#catalog-select");
+        let selectedCatalog = {
+            id: this._catalogElement.options[this._catalogElement.selectedIndex].value,
+            value: this._catalogElement.options[this._catalogElement.selectedIndex].text
+        };
+        this._dataCatalog = selectedCatalog;
+        return this._dataCatalog;
+    }
+    catalogSubmit() {
+        return new Promise((resolve, reject)=>{
+            document.querySelector(".catalog-form").addEventListener("submit", async (e)=>{
+                e.preventDefault();
+                resolve("submitted");
+            });
+        });
+    }
+    renderError(message = this._errorMessage) {
+        const markup = `
+        <div class="popup-guardado">
+        <div class="popup">
+                <div class="popup-inner">
+                    <div class="alert">
+                        <svg>
+                            <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+                        </svg>
+                    </div>
+                    <p style="white-space: pre-line">${message}</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>`;
+        this._clear();
+        this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+}
+exports.default = new configAppView();
+
+},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["gfkIy","aenu9"], "aenu9", "parcelRequire0e80")
 
 //# sourceMappingURL=index.e37f48ea.js.map

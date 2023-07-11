@@ -29,9 +29,12 @@
             href="./src/img/favicon.png"
         />
         <link rel="stylesheet" href="./src/css/main.css" />
+        <script defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
         <script type="module" defer src="./src/js/controller.js"></script>
+        
     </head>
     <body>
+          
         <div id="app" class="container-fluid h-100">
             <div class="popup-container">
                 <!-- <div class="popup-guardado">
@@ -112,6 +115,14 @@
                                 <span class="sr-only"></span
                             ></a>
                         </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="#"
+                                ><i class="fas fa-cog"></i> Configuración
+                                <span class="sr-only"></span
+                            ></a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
@@ -173,11 +184,11 @@
                                 <thead>
                                     <tr>
                                         <th>Id</th>
-                                        <th style="width: 15%;">Titulo de la Propiedad</th>
-                                        <th style="width: 10%;">Baños</th>
+                                        <th style="width: 25%;">Titulo de la Propiedad</th>
+                                        <th style="width: 7%;">Baños</th>
                                         <th style="width: 10%;"><i class="fas fa-home"></i></th>
                                         <th style="width: 7%;"><i class="fas fa-car"></i></th>
-                                        <th style="width: 7%;">Estado</th>
+                                        <th style="width: 10%;">Estado</th>
                                         <th>Precio</th>
                                         <th><i class="fab fa-facebook"></i></th>
                                     </tr>
@@ -238,7 +249,7 @@
                 </div>
             </section>
         </div>
-
+        
         <script
             src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -264,4 +275,5 @@
             type="text/css"
         />
     </body>
+    
 </html>

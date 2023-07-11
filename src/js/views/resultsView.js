@@ -7,7 +7,7 @@ class ResultsView extends View {
     _parentElement = document
         .querySelector('.table-data')
         .querySelector('tbody');
-    _errorMessage = 'No recipes found for your query! Please try again';
+    _errorMessage = 'No se encontraron propiedades! Por favor intenta de nuevo';
     _message = '';
 
     addHandler(handler) {
@@ -23,8 +23,7 @@ class ResultsView extends View {
     _generateMarkupPreview(result) {
         // const id = window.location.hash.slice(1);
         const facebookResults = getFacebookResults();
-        console.log(facebookResults);
-        console.log(facebookResults.find((el) => el.retailer_id === 20368));
+        
         return `<tr>
         <td>${result.ID || '--'}</td>
         <td>${result.post_title || '--'}</td>
