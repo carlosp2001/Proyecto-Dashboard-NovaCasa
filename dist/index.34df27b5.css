@@ -496,4 +496,12 @@ table.table .avatar {
   border: 0;
 }
 
+#dashboard-page {
+  display: inline;
+}
+
+#settings-page {
+  display: none;
+}
+
 /*# sourceMappingURL=index.34df27b5.css.map */

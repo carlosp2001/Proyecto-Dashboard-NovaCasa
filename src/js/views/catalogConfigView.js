@@ -3,7 +3,7 @@ import icons from 'url:../../img/icons.svg';
 
 // import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
 
-class configAppView extends View {
+class catalogConfigView extends View {
     _parentElement = document.querySelector('.popup-container');
     _catalogElement = '';
     _dataCatalog = '';
@@ -83,4 +83,4 @@ class configAppView extends View {
     }
 }
 
-export default new configAppView();
+export default new catalogConfigView();

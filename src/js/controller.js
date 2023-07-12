@@ -1,8 +1,9 @@
 import * as model from './model.js';
+import appView from './views/appView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import importPropertiesView from './views/importPropertiesView.js';
-import configAppView from './views/catalogConfigView.js';
+import catalogConfigAppView from './views/catalogConfigView.js';
 
 const controlResults = async function () {
     try {
@@ -13,17 +14,17 @@ const controlResults = async function () {
         if (!model.checkForCatalog()) {
             // 2) Si la autenticación que realice se encuentra del todo bien, se muestra el popup
             // para seleccionar el catálogo al que se desea importar
-            configAppView.render(
+            catalogConfigAppView.render(
                 (data = model.state.user.catalogs),
                 (onlyRender = true)
             );
 
             // 3) Se hace una espera con una promesa hasta que confirme al catálogo que enviaremos
-            await configAppView.catalogSubmit();
+            await catalogConfigAppView.catalogSubmit();
 
             // 4) Se guarda el catálogo seleccionado
 
-            model.saveCatalog(await configAppView.getSelectedCatalog());
+            model.saveCatalog(await catalogConfigAppView.getSelectedCatalog());
         }
 
         // 5) Se renderiza el spinner de carga
@@ -41,7 +42,7 @@ const controlResults = async function () {
 
         // 8) Se renderiza la paginación de la pagina
         paginationView.render(model.state.search);
-        configAppView._clear();
+        catalogConfigAppView._clear();
     } catch (err) {
         // En caso de haber algun error en cualquiera de los procedimientos anteriores se
         // capturara aca y se mostrará en un pop-up con un icono de alerta
@@ -85,7 +86,21 @@ const controlImportProperties = async function () {
     }
 };
 
-const init = function () {
+const controlPage = (e) => {
+    if (e.type === 'hashchange') {
+        const page = window.location.hash.slice(1);
+        if (page === 'dashboard') {
+            document.getElementById('dashboard-page').style.display = 'inline';
+            document.getElementById('settings-page').style.display = 'none';
+        } else if (page === 'settings') {
+            document.getElementById('dashboard-page').style.display = 'none';
+            document.getElementById('settings-page').style.display = 'inline';
+        }
+    }
+};
+
+const init = async function () {
+    appView.addHandlerRender(controlPage);
     resultsView.addHandler(controlResults);
     paginationView.addHandlerClick(controlPagination);
     importPropertiesView.addHandler(controlImportProperties);

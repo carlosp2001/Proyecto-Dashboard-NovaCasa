@@ -49,7 +49,9 @@ export const getFacebookResults = function () {
 };
 
 export const importProperties = async function () {
-    const result = await AJAX(`http://localhost:8080/importProperties?catalog_id=${state.user.catalog.id}`);
+    const result = await AJAX(
+        `http://localhost:8080/importProperties?catalog_id=${state.user.catalog.id}`
+    );
 
     return result;
 };

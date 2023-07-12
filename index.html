@@ -34,46 +34,11 @@
         
     </head>
     <body>
-          
-        <div id="app" class="container-fluid h-100">
+        <div class="container-fluid h-100">
             <div class="popup-container">
-                <!-- <div class="popup-guardado">
-                    <div class="popup">
-                        <div class="popup-inner">
-                            <h1>
-                                Texto prueba!
-                                <i class="fas fa-check"></i>
-                            </h1>
-                            <p>
-                                <a
-                                    href="#"
-                                    class="btn btn-success"
-                                    id="cerrar-popup-save"
-                                    >Cerrar</a
-                                >
-                            </p>
-                        </div>
-                    </div>
-                </div> -->
+    
             </div>
-            <!-- <div class="popup-guardado">
-                <div class="popup">
-                    <div class="popup-inner">
-                        <h1>
-                            Texto prueba!
-                            <i class="fas fa-check"></i>
-                        </h1>
-                        <p>
-                            <a
-                                href="#"
-                                class="btn btn-success"
-                                id="cerrar-popup-save"
-                                >Cerrar</a
-                            >
-                        </p>
-                    </div>
-                </div>
-            </div> -->
+
             <nav class="navbar navbar-expand-lg navbar-dark navbg">
                 <div>
                     <img
@@ -102,7 +67,7 @@
                         <li class="nav-item">
                             <a
                                 class="nav-link"
-                                href="/"
+                                href="#dashboard"
                                 ><i class="fa fa-home"></i> Dashboard
                                 <span class="sr-only"></span
                             ></a>
@@ -118,7 +83,7 @@
                         <li class="nav-item">
                             <a
                                 class="nav-link"
-                                href="#"
+                                href="#settings"
                                 ><i class="fas fa-cog"></i> Configuración
                                 <span class="sr-only"></span
                             ></a>
@@ -158,11 +123,11 @@
             </nav>
             
             <div class="clearfix"></div>
-            <section class="main container-fluid h-100">
+            <section id="dashboard-page" class="main container-fluid h-100">
                 <div class="row justify-content-center h-100">
-                    <div class="content-wrapper col">
-                        <div class="table-wrapper">
-                            <div class="table-title">
+                    <div  class="content-wrapper col" >
+                        <div  class="table-wrapper">
+                            <div class="table-title" >
                                 <div class="row">
                                     <div class="col-sm-9">
                                         <h2>Administrar <b>Propiedades</b></h2>
@@ -172,12 +137,6 @@
                                             <span class="mr-2"><i class="fas fa-sync-alt"></i></i></span>Importar propiedades
                                         </div>
                                     </div>
-                                    <!-- <div class="col-sm-6">
-                    <a class="btn btn-success" id="btn-agregar"
-                      ><i class="fas fa-plus-circle"></i
-                      ><span>Nuevo Auto</span></a
-                    >
-                  </div> -->
                                 </div>
                             </div>
                             <table class="table table-data">
@@ -228,7 +187,7 @@
                             
                         </div>
                     </div>
-                                    </div>
+                        </div>
                                     <!-- <div class="modal-footer">
                                         <input
                                             type="button"
@@ -242,12 +201,90 @@
                                             value="Agregar"
                                         />
                                     </div> -->
-                                </form>
+            </section>
+            <section id="settings-page" class="main container-fluid h-100">
+                <div class="row justify-content-center h-100">
+                    <div  class="content-wrapper col" >
+                        <div  class="table-wrapper">
+                            <div class="table-title" >
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <h2>Administrar <b>Propiedades</b></h2>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div id="import-button">
+                                            <span class="mr-2"><i class="fas fa-sync-alt"></i></i></span>Importar propiedades
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            <table class="table table-data">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th style="width: 25%;">Titulo de la Propiedad</th>
+                                        <th style="width: 7%;">Baños</th>
+                                        <th style="width: 10%;"><i class="fas fa-home"></i></th>
+                                        <th style="width: 7%;"><i class="fas fa-car"></i></th>
+                                        <th style="width: 10%;">Estado</th>
+                                        <th>Precio</th>
+                                        <th><i class="fab fa-facebook"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- <tr>
+                                        <td>1</td>
+                                        <td>Propiedad</td>
+                                        <td>4</td>
+                                        <td>150m2</td>
+                                        <td>2</td>
+                                        <td>Disponible</td>
+                                        <td>Precio</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Propiedad</td>
+                                        <td>4</td>
+                                        <td>150m2</td>
+                                        <td>2</td>
+                                        <td>Disponible</td>
+                                        <td>Precio</td>
+                                    </tr> -->
+                                </tbody>
+                                
+                            </table>
+                            <nav>
+                                <ul class="pagination">
+                                    <!-- <li class="page-item"><a class="page-link" href="#1">Previous</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
+                                </ul>
+                              </nav>
+                            <div class="clearfix"></div>
+                            
                         </div>
                     </div>
-                </div>
+                        </div>
+                                    <!-- <div class="modal-footer">
+                                        <input
+                                            type="button"
+                                            class="btn btn-default"
+                                            value="Cancelar"
+                                        />
+                                        <input
+                                            type="button"
+                                            class="btn btn-success"
+                                            id="agregar-btn"
+                                            value="Agregar"
+                                        />
+                                    </div> -->
+
+
+
             </section>
+
         </div>
         
         <script

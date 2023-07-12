@@ -522,3 +522,11 @@ table.table .avatar {
     color: black;
     border: 0px;
 }
+
+#dashboard-page {
+    display: inline;
+}
+
+#settings-page {
+    display: none;
+}
