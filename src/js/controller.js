@@ -8,6 +8,7 @@ import configView from './views/configView.js';
 
 const controlResults = async function () {
     try {
+        console.log(process.env);
         // 1) Se realiza la autenticación de facebook
         await model.checkFacebookAuth();
         console.log(model.state.user.catalogs);
@@ -26,9 +27,13 @@ const controlResults = async function () {
             // 4) Se guarda el catálogo seleccionado
 
             model.saveCatalog(await catalogConfigAppView.getSelectedCatalog());
+            model.checkForCatalog();
         }
+        catalogConfigAppView._clear();
+
         configView.render(model.state);
-        configView.addLogOutHandler(logOutFacebook);
+        configView.addLogOutHandler(controlLogOutFacebook);
+        configView.addConfirmHandler(controlSettings);
 
         // 5) Se renderiza el spinner de carga
         resultsView.renderSpinner();
@@ -39,13 +44,8 @@ const controlResults = async function () {
         // 7) Se renderizan los resultados
         resultsView.render(model.getResults());
 
-        // console.log(model.state.search.results);
-        // // resultsView.render(model.state.search.results)
-        // resultsView.render(model.getSearchResultsPage());
-
         // 8) Se renderiza la paginación de la pagina
         paginationView.render(model.state.search);
-        catalogConfigAppView._clear();
     } catch (err) {
         // En caso de haber algun error en cualquiera de los procedimientos anteriores se
         // capturara aca y se mostrará en un pop-up con un icono de alerta
@@ -83,8 +83,6 @@ const controlImportProperties = async function () {
     } else if (res.status === 'fail') {
         importPropertiesView._errorMessage = res.message;
         importPropertiesView.renderError();
-        // await sleep(4);
-        // importPropertiesView._clear();
     }
 };
 
@@ -103,21 +101,31 @@ const controlPage = (e) => {
             document.getElementById('dashboard-page').style.display = 'none';
             document.getElementById('settings-page').style.display = 'inline';
         } else {
+            importPropertiesView._errorMessage = err;
+            importPropertiesView.renderError();
+            console.log(err);
         }
     }
 };
 
-const logOutFacebook = async (e) => {
+const controlLogOutFacebook = async (e) => {
     e.preventDefault();
     try {
-        if ((await model.logOutFacebook()) === 'loggedOut')
+        if ((await model.logOutFacebook()) === 'loggedOut') {
+            localStorage.removeItem('catalog');
             throw new Error(
                 'Has cerrado sesión recarga la página para volver a iniciar sesión'
             );
+        }
     } catch (err) {
         importPropertiesView._errorMessage = err.message;
         importPropertiesView.renderError();
     }
+};
+
+const controlSettings = (e) => {
+    e.preventDefault();
+    model.setNewConfigSettings(configView.getFormData());
 };
 
 const init = async function () {

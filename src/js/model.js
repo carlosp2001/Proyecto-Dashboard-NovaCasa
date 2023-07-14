@@ -1,5 +1,5 @@
 import {AJAX} from './helpers.js';
-const API_URL = 'http://localhost:8080';
+import { API_URL } from './config.js';
 
 export const state = {
     property: {},
@@ -24,11 +24,10 @@ export const loadResults = async function () {
         state.search.results = data.data.properties;
 
         const dataFacebook = await AJAX(
-            `http://localhost:8080/api/v1/propertiesFacebook`
+            `${API_URL}/api/v1/propertiesFacebook`
         );
-        // console.log(state.search.results);
+
         state.search.resultsFacebook = dataFacebook.data.properties;
-        // console.log(state.search.resultsFacebook);
 
         state.search.page = 1;
     } catch (err) {
@@ -50,7 +49,7 @@ export const getFacebookResults = function () {
 
 export const importProperties = async function () {
     const result = await AJAX(
-        `http://localhost:8080/importProperties?catalog_id=${state.user.catalog.id}`
+        `${API_URL}/importProperties?catalog_id=${state.user.catalog.id}`
     );
 
     return result;
@@ -79,7 +78,7 @@ export const logOutFacebook = function () {
                     resolve('loggedOut');
                 });
             } else {
-                reject('No existe una sesión')
+                reject('No existe una sesión');
             }
         });
     });
@@ -158,4 +157,8 @@ export const checkForCatalog = function () {
         console.log(state.user);
         return true;
     } else return false;
+};
+
+export const setNewConfigSettings = function (data) {
+    if (data.catalog) saveCatalog(data.catalog);
 };

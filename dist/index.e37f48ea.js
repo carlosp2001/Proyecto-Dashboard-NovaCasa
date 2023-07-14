@@ -588,8 +588,10 @@ var _catalogConfigViewJs = require("./views/catalogConfigView.js");
 var _catalogConfigViewJsDefault = parcelHelpers.interopDefault(_catalogConfigViewJs);
 var _configViewJs = require("./views/configView.js");
 var _configViewJsDefault = parcelHelpers.interopDefault(_configViewJs);
+var process = require("7f5f2eee49cf486f");
 const controlResults = async function() {
     try {
+        console.log(process.env);
         // 1) Se realiza la autenticación de facebook
         await _modelJs.checkFacebookAuth();
         console.log(_modelJs.state.user.catalogs);
@@ -601,28 +603,27 @@ const controlResults = async function() {
             await (0, _catalogConfigViewJsDefault.default).catalogSubmit();
             // 4) Se guarda el catálogo seleccionado
             _modelJs.saveCatalog(await (0, _catalogConfigViewJsDefault.default).getSelectedCatalog());
+            _modelJs.checkForCatalog();
         }
+        (0, _catalogConfigViewJsDefault.default)._clear();
         (0, _configViewJsDefault.default).render(_modelJs.state);
-        (0, _configViewJsDefault.default).addLogOutHandler(logOutFacebook);
+        (0, _configViewJsDefault.default).addLogOutHandler(controlLogOutFacebook);
+        (0, _configViewJsDefault.default).addConfirmHandler(controlSettings);
         // 5) Se renderiza el spinner de carga
         (0, _resultsViewJsDefault.default).renderSpinner();
         // 6) Se cargan los resultados
         await _modelJs.loadResults();
         // 7) Se renderizan los resultados
         (0, _resultsViewJsDefault.default).render(_modelJs.getResults());
-        // console.log(model.state.search.results);
-        // // resultsView.render(model.state.search.results)
-        // resultsView.render(model.getSearchResultsPage());
         // 8) Se renderiza la paginación de la pagina
         (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
-        (0, _catalogConfigViewJsDefault.default)._clear();
-    } catch (err) {
+    } catch (err1) {
         // En caso de haber algun error en cualquiera de los procedimientos anteriores se
         // capturara aca y se mostrará en un pop-up con un icono de alerta
-        console.log(err);
-        (0, _importPropertiesViewJsDefault.default)._errorMessage = err;
+        console.log(err1);
+        (0, _importPropertiesViewJsDefault.default)._errorMessage = err1;
         (0, _importPropertiesViewJsDefault.default).renderError();
-        console.log(err);
+        console.log(err1);
     }
 };
 const controlPagination = function(goToPage) {
@@ -648,8 +649,6 @@ const controlImportProperties = async function() {
     } else if (res.status === "fail") {
         (0, _importPropertiesViewJsDefault.default)._errorMessage = res.message;
         (0, _importPropertiesViewJsDefault.default).renderError();
-    // await sleep(4);
-    // importPropertiesView._clear();
     }
 };
 const controlPage = (e)=>{
@@ -663,17 +662,28 @@ const controlPage = (e)=>{
         else if (page === "settings") {
             document.getElementById("dashboard-page").style.display = "none";
             document.getElementById("settings-page").style.display = "inline";
+        } else {
+            (0, _importPropertiesViewJsDefault.default)._errorMessage = err;
+            (0, _importPropertiesViewJsDefault.default).renderError();
+            console.log(err);
         }
     }
 };
-const logOutFacebook = async (e)=>{
+const controlLogOutFacebook = async (e)=>{
     e.preventDefault();
     try {
-        if (await _modelJs.logOutFacebook() === "loggedOut") throw new Error("Has cerrado sesi\xf3n recarga la p\xe1gina para volver a iniciar sesi\xf3n");
-    } catch (err) {
-        (0, _importPropertiesViewJsDefault.default)._errorMessage = err.message;
+        if (await _modelJs.logOutFacebook() === "loggedOut") {
+            localStorage.removeItem("catalog");
+            throw new Error("Has cerrado sesi\xf3n recarga la p\xe1gina para volver a iniciar sesi\xf3n");
+        }
+    } catch (err1) {
+        (0, _importPropertiesViewJsDefault.default)._errorMessage = err1.message;
         (0, _importPropertiesViewJsDefault.default).renderError();
     }
+};
+const controlSettings = (e)=>{
+    e.preventDefault();
+    _modelJs.setNewConfigSettings((0, _configViewJsDefault.default).getFormData());
 };
 const init = async function() {
     (0, _appViewJsDefault.default).addHandlerRender(controlPage);
@@ -683,7 +693,7 @@ const init = async function() {
 };
 init();
 
-},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb","./views/appView.js":"9NgEe","./views/catalogConfigView.js":"4qPEU","./views/configView.js":"aNyps"}],"Y4A21":[function(require,module,exports) {
+},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb","./views/appView.js":"9NgEe","./views/catalogConfigView.js":"4qPEU","./views/configView.js":"aNyps","7f5f2eee49cf486f":"d5jf4"}],"Y4A21":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
@@ -696,8 +706,9 @@ parcelHelpers.export(exports, "logOutFacebook", ()=>logOutFacebook);
 parcelHelpers.export(exports, "checkFacebookAuth", ()=>checkFacebookAuth);
 parcelHelpers.export(exports, "saveCatalog", ()=>saveCatalog);
 parcelHelpers.export(exports, "checkForCatalog", ()=>checkForCatalog);
+parcelHelpers.export(exports, "setNewConfigSettings", ()=>setNewConfigSettings);
 var _helpersJs = require("./helpers.js");
-const API_URL = "http://localhost:8080";
+var _configJs = require("./config.js");
 const state = {
     property: {},
     user: {
@@ -715,12 +726,10 @@ const state = {
 };
 const loadResults = async function() {
     try {
-        const data = await (0, _helpersJs.AJAX)(`${API_URL}/api/v1/properties`);
+        const data = await (0, _helpersJs.AJAX)(`${(0, _configJs.API_URL)}/api/v1/properties`);
         state.search.results = data.data.properties;
-        const dataFacebook = await (0, _helpersJs.AJAX)(`http://localhost:8080/api/v1/propertiesFacebook`);
-        // console.log(state.search.results);
+        const dataFacebook = await (0, _helpersJs.AJAX)(`${(0, _configJs.API_URL)}/api/v1/propertiesFacebook`);
         state.search.resultsFacebook = dataFacebook.data.properties;
-        // console.log(state.search.resultsFacebook);
         state.search.page = 1;
     } catch (err) {
         console.error(`Error intentando obtener los datos! 💥💥💥💥`);
@@ -737,7 +746,7 @@ const getFacebookResults = function() {
     return state.search.resultsFacebook;
 };
 const importProperties = async function() {
-    const result = await (0, _helpersJs.AJAX)(`http://localhost:8080/importProperties?catalog_id=${state.user.catalog.id}`);
+    const result = await (0, _helpersJs.AJAX)(`${(0, _configJs.API_URL)}/importProperties?catalog_id=${state.user.catalog.id}`);
     return result;
 };
 const logInFacebook = function() {
@@ -814,21 +823,15 @@ const checkForCatalog = function() {
         return true;
     } else return false;
 };
+const setNewConfigSettings = function(data) {
+    if (data.catalog) saveCatalog(data.catalog);
+};
 
-},{"./helpers.js":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
+},{"./helpers.js":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config.js":"k5Hzs"}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "timeout", ()=>timeout);
 parcelHelpers.export(exports, "AJAX", ()=>AJAX);
 parcelHelpers.export(exports, "getCookie", ()=>getCookie);
-const TIMEOUT_SEC = 10000;
-const timeout = function(s) {
-    return new Promise(function(_, reject) {
-        setTimeout(function() {
-            reject(new Error(`Request took too long! Timeout after ${s} second`));
-        }, s * 1000);
-    });
-};
 const AJAX = async function(url) {
     try {
         // const fetchPro = uploadData
@@ -896,7 +899,13 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"cSbZE":[function(require,module,exports) {
+},{}],"k5Hzs":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "API_URL", ()=>API_URL);
+const API_URL = "https://novacasa-server.onrender.com";
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cSbZE":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _viewJs = require("./View.js");
@@ -905,17 +914,44 @@ var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _modelJs = require("../model.js");
-class ResultsView extends (0, _viewJsDefault.default) {
+/**
+ * Esta vista muestra las propiedades cargadas desde la página
+ * @param {Element} _parentElement Es el body de la tabla donde se agregaran la filas con la informa-
+ * ción de las propiedades
+ * @param {String} [_errorMessage='Hubo error al mostrar la página'] _errorMessage Es el mensaje que se muestra al renderizar el error
+ * @this {Object} Instancia de la vista
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */ class ResultsView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".table-data").querySelector("tbody");
     _errorMessage = "No se encontraron propiedades! Por favor intenta de nuevo";
-    _message = "";
-    addHandler(handler) {
+    /**
+     * Se agrega el handler que conecta al controlador con la vista
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addHandler(handler) {
         window.addEventListener("load", handler);
     }
-    _generateMarkup() {
+    /**
+     * Esta función genera el markup que se renderizará en la tabla con las popiedades
+     * @this {Object} Instancia de la vista
+     * @returns {string | undefined} Regresa en forma de cadena el html generado
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkup() {
         return this._data.map((result)=>this._generateMarkupPreview(result)).join("");
     }
-    _generateMarkupPreview(result) {
+    /**
+     * Esta función se encarga de tratar individualmente el html que será generado por _generateMarkup
+     * @param {Object | undefined} result Es el objeto que contiene la información de la propiedad
+     * el cuál será destructurado luego
+     * @this {Object} Instancia de la vista
+     * @returns {string | undefined} Regresa en forma de cadena el html generado individualmente
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkupPreview(result) {
         // const id = window.location.hash.slice(1);
         const facebookResults = (0, _modelJs.getFacebookResults)();
         return `<tr>
@@ -932,7 +968,13 @@ class ResultsView extends (0, _viewJsDefault.default) {
         <td>${facebookResults.find((el)=>el.retailer_id == result.ID) ? `<svg class="check-icon"><use href="${0, _iconsSvgDefault.default}#icon-check"></use></svg>` : `<svg class="x-icon"><use href="${0, _iconsSvgDefault.default}#icon-x"></use></svg>`}</td>
     </tr>`;
     }
-    renderSpinner() {
+    /**
+     * Renderiza un spinner en el elemento padre, esto para crear un efecto de espera
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ renderSpinner() {
         const markup = `
         <tr>
         <td colspan=8>
@@ -958,13 +1000,13 @@ var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 class View {
     _data;
     /**
-     * Render the received object to the DOM
-     * @param {Object | Object[]} data The data to be rendered (e.g. recipe)
-     * @param {boolean} [render=true] If false, create a markup string instead of rendering to the DOM
-     * @returns {undefined | string} A markup string is returned if render=false
-     * @this {Object} View instance
+     * Renderiza el objeto recibo al DOM
+     * @param {Object | Object[]} data Son los datos que van a ser renderizados
+     * @param {boolean} [render=true] Si es falso, solo crea una linea de texto con el HTML
+     * @returns {undefined | string} Una cadena de HTML se devuel si render=false
+     * @this {Object} Instancia de la vista
      * @author Carlos Pineda
-     * @todo Finish implementation
+     * @todo Finalizar implementación
      */ render(data, render = true, onlyRender = false) {
         if (!onlyRender) {
             if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
@@ -975,32 +1017,22 @@ class View {
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
     }
-    update(data) {
-        // if (!data || (Array.isArray(data) && data.length === 0))
-        //     return this.renderError();
-        this._data = data;
-        const newMarkup = this._generateMarkup();
-        const newDOM = document.createRange().createContextualFragment(newMarkup);
-        const newElements = Array.from(newDOM.querySelectorAll("*"));
-        const curElements = Array.from(this._parentElement.querySelectorAll("*"));
-        console.log(curElements);
-        console.log(newElements);
-        newElements.forEach((newEl, i)=>{
-            const curEl = curElements[i];
-            console.log(curEl, newEl.isEqualNode(curEl));
-            // Updates change TEXT
-            if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== "") curEl.textContent = newEl.textContent;
-            // Updates changed ATTRIBUTES
-            if (!newEl.isEqualNode(curEl)) {
-                console.log(Array.from(newEl.attributes));
-                Array.from(newEl.attributes).forEach((attr)=>curEl.setAttribute(attr.name, attr.value));
-            }
-        });
-    }
-    _clear() {
+    /**
+     * Limpia el elemento clave
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _clear() {
         this._parentElement.innerHTML = "";
     }
-    renderSpinner() {
+    /**
+     * Renderiza un spinner en el elemento padre, esto para crear un efecto de espera
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ renderSpinner() {
         const markup = `
         <div class="spinner">
             <svg>
@@ -1011,7 +1043,13 @@ class View {
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
     }
-    renderError(message = this._errorMessage) {
+    /**
+     * Renderiza un error mediante un pop-up
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ renderError(message = this._errorMessage) {
         const markup = `<div class="error">
     <div>
       <svg>
@@ -1071,9 +1109,22 @@ var _viewJs = require("./View.js");
 var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-class PaginationView extends (0, _viewJsDefault.default) {
+/**
+ * Esta se encarga de mostrar la paginación y manejar el cambio de pagina
+ * @property {Element} _parentElement Es el elemento padre donde se mostrará la paginación
+ * @this {Object} Instancia de la vista
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */ class PaginationView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".pagination");
-    addHandlerClick(handler) {
+    /**
+     * Esta funcion crea la conexión entre el controlador y la vista
+     * @param {Function} handler Es la función que sera llamada cada que vez que el evento de click en 
+     * el cambio de página suceda
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addHandlerClick(handler) {
         this._parentElement.addEventListener("click", function(e) {
             const btn = e.target.closest(".page-link");
             console.log(btn);
@@ -1082,7 +1133,14 @@ class PaginationView extends (0, _viewJsDefault.default) {
             handler(goToPage);
         });
     }
-    _generateMarkup() {
+    /**
+     * Genera el markup de la paginación, analiza la cantidad de propiedades y crea el HTML de la 
+     * paginación
+     * @this {Object} Instancia de la vista
+     * @returns {String} La cadena HTML que será renderiza en el DOM
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkup() {
         const curPage = this._data.page;
         const numPages = Math.ceil(this._data.results.length / this._data.resultsPerPage);
         console.log(numPages);
@@ -1111,7 +1169,7 @@ class PaginationView extends (0, _viewJsDefault.default) {
         //                 <use href="${icons}#icon-arrow-left"></use>
         //             </svg>
         //             <span>Page ${curPage - 1}</span>
-        //         </button> 
+        //         </button>
         //         <button data-goto='${
         //             curPage + 1
         //         }' class="btn--inline pagination__btn--next">
@@ -1136,16 +1194,39 @@ var _viewJs = require("./View.js");
 var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-// import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
-class importPropertiesView extends (0, _viewJsDefault.default) {
+/**
+ * Esta vista controla la acción creada por el botón importar propiedades
+ * @property {Element} _parentElement Es el contenedor principal donde se mostrarán los pop-up de
+ * la importación de datos
+ * @property {String} [_errorMessage='No se pudo realizar la importación de las propiedades']
+ * _errorMessage Es el mensaje que se muestra al renderizar el error
+ * @property {String} [_message=''] Define el markup que será generado si es de carga o mensaje de
+ * completado
+ * @property {String} [_messageContent=''] Contenido del mensaje que será mostrado en el pop-up
+ * @this {Object} Instancia de la vista
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */ class importPropertiesView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".popup-container");
     _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
     _message = "";
     _messageContent = "";
-    addHandler(handler) {
+    /**
+     * Se agrega el handler que conecta al controlador con la vista
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addHandler(handler) {
         document.querySelector("#import-button").addEventListener("click", handler);
     }
-    _generateMarkup() {
+    /**
+     * Esta función genera el markup que se renderizará en el pop-up
+     * @this {Object} Instancia de la vista
+     * @returns {String} Regresa en forma de cadena el html generado
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkup() {
         return `<div class="popup-guardado">
         <div class="popup">
                 <div class="popup-inner">
@@ -1156,7 +1237,14 @@ class importPropertiesView extends (0, _viewJsDefault.default) {
         </div>
     </div>`;
     }
-    renderError(message = this._errorMessage) {
+    /**
+     * Renderiza un error mediante un pop-up
+     * @param {String} [message=this._errorMessage] El contenido del mensaje de error
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ renderError(message = this._errorMessage) {
         const markup = `
         <div class="popup-guardado">
         <div class="popup">
@@ -1175,7 +1263,13 @@ class importPropertiesView extends (0, _viewJsDefault.default) {
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
     }
-    _generateMarkupLoadingPreview() {
+    /**
+     * Esta función genera el markup de carga que se renderizará en el pop-up
+     * @this {Object} Instancia de la vista
+     * @returns {String} Regresa en forma de cadena el html generado
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkupLoadingPreview() {
         return `<h3>
         Importando las propiedades
         </h3>
@@ -1184,7 +1278,13 @@ class importPropertiesView extends (0, _viewJsDefault.default) {
     <use href="${0, _iconsSvgDefault.default}#icon-loader"></use>
 </svg>`;
     }
-    _generateMarkupSuccessPreview() {
+    /**
+     * Esta función genera el markup del mensaje de confirmación que se renderizará en el pop-up
+     * @this {Object} Instancia de la vista
+     * @returns {String} Regresa en forma de cadena el html generado
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ _generateMarkupSuccessPreview() {
         return `
                 <h3>
                     ¡Propiedades importadas correctamente!
@@ -1206,12 +1306,17 @@ var _viewJs = require("./View.js");
 var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-// import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
-class appView extends (0, _viewJsDefault.default) {
+/**
+ * Esta vista controla el cambio de página entre el dashboard y la página de configuraciones
+ * @param {Element} _parentElement Hace referencia al elemento en el DOM en el cual se renderizará
+ * los datos
+ * @param {String} [_errorMessage='Hubo error al mostrar la página'] _errorMessage Es el mensaje que se muestra al renderizar el error
+ * @this {Object} Instancia de la vista
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */ class appView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector("#main-app");
-    _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
-    _message = "";
-    _messageContent = "";
+    _errorMessage = "Hubo error al mostrar la p\xe1gina";
     addHandlerRender(handler) {
         [
             "hashchange",
@@ -1302,17 +1407,61 @@ var _viewJs = require("./View.js");
 var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-// import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
-class configView extends (0, _viewJsDefault.default) {
+/**
+ * Esta vista controla la acción creada por el botón importar propiedades
+ * @property {Element} _parentElement Es el contenedor principal donde se renderizarán los elementos
+ * @property {String} [_errorMessage='No se pudo mostrar la configuración'] _errorMessage Es el
+ * mensaje que se muestra al renderizar el error
+ * @this {Object} Instancia de la vista
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */ class configView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".settings-wrapper");
-    _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
-    _message = "";
-    _messageContent = "";
-    addHandler(handler) {
+    _errorMessage = "No se pudo mostrar la configuraci\xf3n";
+    /**
+     * Se agrega el handler que conecta al controlador con la vista
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addHandler(handler) {
         window.addEventListener("load", handler);
     }
-    addLogOutHandler(handler) {
+    /**
+     * Se agrega el handler que conecta al controlador con la vista para realizar el cierre de sesión 
+     * con facebook
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addLogOutHandler(handler) {
         document.querySelector(".btn-logout-facebook").addEventListener("click", handler);
+    }
+    /**
+     * Se agrega el handler que conecta al controlador con la vista al presionar el boton confirmar y
+     * actualizar los datos de configuración
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ addConfirmHandler(handler) {
+        document.querySelector(".btn-confirm-settings").addEventListener("click", handler);
+    }
+    /**
+     * Se encarga de obtener los datos 
+     * @returns 
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */ getFormData() {
+        let catalog = document.querySelector("#catalog-select-form");
+        let selectedCatalog = {
+            id: catalog.options[catalog.selectedIndex].value,
+            value: catalog.options[catalog.selectedIndex].text
+        };
+        return {
+            catalog: selectedCatalog
+        };
     }
     _generateMarkup() {
         return `
@@ -1322,21 +1471,24 @@ class configView extends (0, _viewJsDefault.default) {
         <div>
             <h6>Usuario de Facebook</h6>
             <hr>
-            <div class="w-25 d-inline-block mr-4">
+            <div class="col-12 col-md-4 d-inline-block mr-4">
             <label for="user-id-input">Id del Usuario:</label>
             <input type="text" class="form-control" id="user-id-input" value='${this._data.user.user_id}'>
             </div>
-            <div class="w-25 d-inline-block mr-3">
+            <div class="col-12 col-md-4 d-inline-block mr-3 mb-4">
             <label for="user-name-input">Nombre:</label>
             <input type="text" class="form-control" id="user-name-input" value='${this._data.user.user_name}'>
-            </div><button type="submit" class="btn btn-secondary btn-logout-facebook">Cerrar Sesión</button>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-logout-facebook">Cerrar Sesión</button>
             <hr>
+            <div class="col-12">
             <label for="catalog-select-form">Catálogo seleccionado:</label>
             <select class="form-control" id="catalog-select-form">
-                ${this._data.user.catalogs.map((el)=>`<option value='${el.id}' ${el.id === this._data.user.catalog ? "selected" : ""}>${el.name}</option>`).join("")}
+                ${this._data.user.catalogs.map((el)=>`<option value='${el.id}' ${el.id === this._data.user.catalog.id ? "selected" : ""}>${el.name}</option>`).join("")}
             </select>
             <br>
-            <button type="submit" class="btn btn-secondary">Confirmar</button>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-confirm-settings">Confirmar</button>
 
             
 
@@ -1365,6 +1517,151 @@ class configView extends (0, _viewJsDefault.default) {
 }
 exports.default = new configView();
 
-},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["gfkIy","aenu9"], "aenu9", "parcelRequire0e80")
+},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d5jf4":[function(require,module,exports) {
+// shim for using process in browser
+var process = module.exports = {};
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+var cachedSetTimeout;
+var cachedClearTimeout;
+function defaultSetTimout() {
+    throw new Error("setTimeout has not been defined");
+}
+function defaultClearTimeout() {
+    throw new Error("clearTimeout has not been defined");
+}
+(function() {
+    try {
+        if (typeof setTimeout === "function") cachedSetTimeout = setTimeout;
+        else cachedSetTimeout = defaultSetTimout;
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === "function") cachedClearTimeout = clearTimeout;
+        else cachedClearTimeout = defaultClearTimeout;
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+})();
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) //normal enviroments in sane situations
+    return clearTimeout(marker);
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e) {
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) return;
+    draining = false;
+    if (currentQueue.length) queue = currentQueue.concat(queue);
+    else queueIndex = -1;
+    if (queue.length) drainQueue();
+}
+function drainQueue() {
+    if (draining) return;
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+    var len = queue.length;
+    while(len){
+        currentQueue = queue;
+        queue = [];
+        while(++queueIndex < len)if (currentQueue) currentQueue[queueIndex].run();
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+process.nextTick = function(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) for(var i = 1; i < arguments.length; i++)args[i - 1] = arguments[i];
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) runTimeout(drainQueue);
+};
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function() {
+    this.fun.apply(null, this.array);
+};
+process.title = "browser";
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ""; // empty string to avoid regexp issues
+process.versions = {};
+function noop() {}
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+process.listeners = function(name) {
+    return [];
+};
+process.binding = function(name) {
+    throw new Error("process.binding is not supported");
+};
+process.cwd = function() {
+    return "/";
+};
+process.chdir = function(dir) {
+    throw new Error("process.chdir is not supported");
+};
+process.umask = function() {
+    return 0;
+};
+
+},{}]},["gfkIy","aenu9"], "aenu9", "parcelRequire0e80")
 
 //# sourceMappingURL=index.e37f48ea.js.map

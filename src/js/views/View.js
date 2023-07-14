@@ -4,13 +4,13 @@ export default class View {
     _data;
 
     /**
-     * Render the received object to the DOM
-     * @param {Object | Object[]} data The data to be rendered (e.g. recipe)
-     * @param {boolean} [render=true] If false, create a markup string instead of rendering to the DOM
-     * @returns {undefined | string} A markup string is returned if render=false
-     * @this {Object} View instance
+     * Renderiza el objeto recibo al DOM
+     * @param {Object | Object[]} data Son los datos que van a ser renderizados
+     * @param {boolean} [render=true] Si es falso, solo crea una linea de texto con el HTML
+     * @returns {undefined | string} Una cadena de HTML se devuel si render=false
+     * @this {Object} Instancia de la vista
      * @author Carlos Pineda
-     * @todo Finish implementation
+     * @todo Finalizar implementación
      */
     render(data, render = true, onlyRender = false) {
         if (!onlyRender) {
@@ -25,49 +25,24 @@ export default class View {
         this._parentElement.insertAdjacentHTML('afterbegin', markup);
     }
 
-    update(data) {
-        // if (!data || (Array.isArray(data) && data.length === 0))
-        //     return this.renderError();
-
-        this._data = data;
-        const newMarkup = this._generateMarkup();
-
-        const newDOM = document
-            .createRange()
-            .createContextualFragment(newMarkup);
-        const newElements = Array.from(newDOM.querySelectorAll('*'));
-        const curElements = Array.from(
-            this._parentElement.querySelectorAll('*')
-        );
-        console.log(curElements);
-        console.log(newElements);
-
-        newElements.forEach((newEl, i) => {
-            const curEl = curElements[i];
-            console.log(curEl, newEl.isEqualNode(curEl));
-
-            // Updates change TEXT
-            if (
-                !newEl.isEqualNode(curEl) &&
-                newEl.firstChild?.nodeValue.trim() !== ''
-            ) {
-                curEl.textContent = newEl.textContent;
-            }
-
-            // Updates changed ATTRIBUTES
-            if (!newEl.isEqualNode(curEl)) {
-                console.log(Array.from(newEl.attributes));
-                Array.from(newEl.attributes).forEach((attr) =>
-                    curEl.setAttribute(attr.name, attr.value)
-                );
-            }
-        });
-    }
-
+    /**
+     * Limpia el elemento clave
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     _clear() {
         this._parentElement.innerHTML = '';
     }
 
+    /**
+     * Renderiza un spinner en el elemento padre, esto para crear un efecto de espera
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     renderSpinner() {
         const markup = `
         <div class="spinner">
@@ -80,6 +55,14 @@ export default class View {
         this._parentElement.insertAdjacentHTML('afterbegin', markup);
     }
 
+
+    /**
+     * Renderiza un error mediante un pop-up
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     renderError(message = this._errorMessage) {
         const markup = `<div class="error">
     <div>
