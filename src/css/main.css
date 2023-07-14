@@ -523,6 +523,12 @@ table.table .avatar {
     border: 0px;
 }
 
+.btn-config {
+    background-color: black;
+    color: white;
+    border: 0px;
+}
+
 #dashboard-page {
     display: inline;
 }

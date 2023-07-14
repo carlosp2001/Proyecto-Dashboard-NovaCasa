@@ -4,6 +4,7 @@ import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import importPropertiesView from './views/importPropertiesView.js';
 import catalogConfigAppView from './views/catalogConfigView.js';
+import configView from './views/configView.js';
 
 const controlResults = async function () {
     try {
@@ -26,6 +27,8 @@ const controlResults = async function () {
 
             model.saveCatalog(await catalogConfigAppView.getSelectedCatalog());
         }
+        configView.render(model.state);
+        configView.addLogOutHandler(logOutFacebook);
 
         // 5) Se renderiza el spinner de carga
         resultsView.renderSpinner();
@@ -78,7 +81,6 @@ const controlImportProperties = async function () {
         await sleep(4);
         importPropertiesView._clear();
     } else if (res.status === 'fail') {
-        console.log('Hola');
         importPropertiesView._errorMessage = res.message;
         importPropertiesView.renderError();
         // await sleep(4);
@@ -87,15 +89,34 @@ const controlImportProperties = async function () {
 };
 
 const controlPage = (e) => {
-    if (e.type === 'hashchange') {
+    if (e.type === 'hashchange' || e.type === 'load') {
         const page = window.location.hash.slice(1);
-        if (page === 'dashboard') {
+
+        function switchDashboard() {
             document.getElementById('dashboard-page').style.display = 'inline';
             document.getElementById('settings-page').style.display = 'none';
+        }
+
+        if (page === 'dashboard') {
+            switchDashboard();
         } else if (page === 'settings') {
             document.getElementById('dashboard-page').style.display = 'none';
             document.getElementById('settings-page').style.display = 'inline';
+        } else {
         }
+    }
+};
+
+const logOutFacebook = async (e) => {
+    e.preventDefault();
+    try {
+        if ((await model.logOutFacebook()) === 'loggedOut')
+            throw new Error(
+                'Has cerrado sesión recarga la página para volver a iniciar sesión'
+            );
+    } catch (err) {
+        importPropertiesView._errorMessage = err.message;
+        importPropertiesView.renderError();
     }
 };
 

@@ -586,6 +586,8 @@ var _importPropertiesViewJs = require("./views/importPropertiesView.js");
 var _importPropertiesViewJsDefault = parcelHelpers.interopDefault(_importPropertiesViewJs);
 var _catalogConfigViewJs = require("./views/catalogConfigView.js");
 var _catalogConfigViewJsDefault = parcelHelpers.interopDefault(_catalogConfigViewJs);
+var _configViewJs = require("./views/configView.js");
+var _configViewJsDefault = parcelHelpers.interopDefault(_configViewJs);
 const controlResults = async function() {
     try {
         // 1) Se realiza la autenticación de facebook
@@ -600,6 +602,8 @@ const controlResults = async function() {
             // 4) Se guarda el catálogo seleccionado
             _modelJs.saveCatalog(await (0, _catalogConfigViewJsDefault.default).getSelectedCatalog());
         }
+        (0, _configViewJsDefault.default).render(_modelJs.state);
+        (0, _configViewJsDefault.default).addLogOutHandler(logOutFacebook);
         // 5) Se renderiza el spinner de carga
         (0, _resultsViewJsDefault.default).renderSpinner();
         // 6) Se cargan los resultados
@@ -642,7 +646,6 @@ const controlImportProperties = async function() {
         await sleep(4);
         (0, _importPropertiesViewJsDefault.default)._clear();
     } else if (res.status === "fail") {
-        console.log("Hola");
         (0, _importPropertiesViewJsDefault.default)._errorMessage = res.message;
         (0, _importPropertiesViewJsDefault.default).renderError();
     // await sleep(4);
@@ -650,15 +653,26 @@ const controlImportProperties = async function() {
     }
 };
 const controlPage = (e)=>{
-    if (e.type === "hashchange") {
+    if (e.type === "hashchange" || e.type === "load") {
         const page = window.location.hash.slice(1);
-        if (page === "dashboard") {
+        function switchDashboard() {
             document.getElementById("dashboard-page").style.display = "inline";
             document.getElementById("settings-page").style.display = "none";
-        } else if (page === "settings") {
+        }
+        if (page === "dashboard") switchDashboard();
+        else if (page === "settings") {
             document.getElementById("dashboard-page").style.display = "none";
             document.getElementById("settings-page").style.display = "inline";
         }
+    }
+};
+const logOutFacebook = async (e)=>{
+    e.preventDefault();
+    try {
+        if (await _modelJs.logOutFacebook() === "loggedOut") throw new Error("Has cerrado sesi\xf3n recarga la p\xe1gina para volver a iniciar sesi\xf3n");
+    } catch (err) {
+        (0, _importPropertiesViewJsDefault.default)._errorMessage = err.message;
+        (0, _importPropertiesViewJsDefault.default).renderError();
     }
 };
 const init = async function() {
@@ -669,7 +683,7 @@ const init = async function() {
 };
 init();
 
-},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb","./views/catalogConfigView.js":"4qPEU","./views/appView.js":"9NgEe"}],"Y4A21":[function(require,module,exports) {
+},{"./model.js":"Y4A21","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/importPropertiesView.js":"j5lqb","./views/appView.js":"9NgEe","./views/catalogConfigView.js":"4qPEU","./views/configView.js":"aNyps"}],"Y4A21":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
@@ -678,6 +692,7 @@ parcelHelpers.export(exports, "getResults", ()=>getResults);
 parcelHelpers.export(exports, "getFacebookResults", ()=>getFacebookResults);
 parcelHelpers.export(exports, "importProperties", ()=>importProperties);
 parcelHelpers.export(exports, "logInFacebook", ()=>logInFacebook);
+parcelHelpers.export(exports, "logOutFacebook", ()=>logOutFacebook);
 parcelHelpers.export(exports, "checkFacebookAuth", ()=>checkFacebookAuth);
 parcelHelpers.export(exports, "saveCatalog", ()=>saveCatalog);
 parcelHelpers.export(exports, "checkForCatalog", ()=>checkForCatalog);
@@ -736,6 +751,16 @@ const logInFacebook = function() {
         });
     });
 };
+const logOutFacebook = function() {
+    return new Promise((resolve, reject)=>{
+        FB.getLoginStatus((response)=>{
+            if (response.status === "connected") FB.logout(()=>{
+                resolve("loggedOut");
+            });
+            else reject("No existe una sesi\xf3n");
+        });
+    });
+};
 const checkFacebookAuth = function() {
     return new Promise((resolve, reject)=>{
         FB.init({
@@ -746,6 +771,12 @@ const checkFacebookAuth = function() {
         });
         FB.getLoginStatus(async function(response) {
             if (response.status === "connected") {
+                console.log(response);
+                FB.api(`/me`, function(response) {
+                    console.log(response);
+                    if (!response) return reject("No se encontro la informaci\xf3n de tu cuenta");
+                    state.user.user_name = response.name;
+                });
                 state.user.user_id = response.authResponse.userID;
                 new Promise((resolve, reject)=>{
                     // Conseguir la el ID del negocio
@@ -1089,7 +1120,7 @@ class PaginationView extends (0, _viewJsDefault.default) {
         //                 <use href="${icons}#icon-arrow-right"></use>
         //             </svg>
         //         </button>`;
-        return `<li class="page-item"><a class="page-link" data-goto='${curPage - 1}' >Page ${curPage - 1}</a></li>
+        return `<li class="page-item"><a class="page-link" data-goto='${curPage - 1}' >Pagina ${curPage - 1}</a></li>
             <li class="page-item active"><a class="page-link" >Pagina ${curPage}</a></li>
             <li class="page-item "><a class="page-link" data-goto='${curPage + 1}' >Pagina ${curPage + 1}</a></li>`;
         // Page 1, and there are no other pages
@@ -1168,7 +1199,29 @@ class importPropertiesView extends (0, _viewJsDefault.default) {
 }
 exports.default = new importPropertiesView();
 
-},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}],"4qPEU":[function(require,module,exports) {
+},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}],"9NgEe":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("./View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+// import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
+class appView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector("#main-app");
+    _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
+    _message = "";
+    _messageContent = "";
+    addHandlerRender(handler) {
+        [
+            "hashchange",
+            "load"
+        ].forEach((e)=>window.addEventListener(e, handler));
+    }
+}
+exports.default = new appView();
+
+},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4qPEU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _viewJs = require("./View.js");
@@ -1242,7 +1295,7 @@ class catalogConfigView extends (0, _viewJsDefault.default) {
 }
 exports.default = new catalogConfigView();
 
-},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9NgEe":[function(require,module,exports) {
+},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aNyps":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _viewJs = require("./View.js");
@@ -1250,102 +1303,45 @@ var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 // import previewView from './previewView.js'; // Parcel 2, si no es un archivo de
-class appView extends (0, _viewJsDefault.default) {
-    _parentElement = document.querySelector("#main-app");
+class configView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector(".settings-wrapper");
     _errorMessage = "No se pudo realizar la importaci\xf3n de las propiedades";
     _message = "";
     _messageContent = "";
-    addHandlerRender(handler) {
-        [
-            "hashchange",
-            "load"
-        ].forEach((e)=>window.addEventListener(e, handler));
+    addHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+    addLogOutHandler(handler) {
+        document.querySelector(".btn-logout-facebook").addEventListener("click", handler);
     }
     _generateMarkup() {
-        if (page === "dashboard") return this._generateMarkupAppPage();
-    }
-    _generateMarkupAppPage() {
         return `
-        <div class="table-title">
-        <div class="row">
-            <div class="col-sm-9">
-                <h2>Administrar <b>Propiedades</b></h2>
-            </div>
-            <div class="col-sm-3">
-                <div id="import-button">
-                    <span class="mr-2"><i class="fas fa-sync-alt"></i></i></span>Importar propiedades
-                </div>
-            </div>
-            <!-- <div class="col-sm-6">
-<a class="btn btn-success" id="btn-agregar"
-><i class="fas fa-plus-circle"></i
-><span>Nuevo Auto</span></a
->
-</div> -->
+        <div class="mb-3">
+            <h3>Configuración</h3>
         </div>
-    </div>
-    <table class="table table-data">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th style="width: 25%;">Titulo de la Propiedad</th>
-                <th style="width: 7%;">Baños</th>
-                <th style="width: 10%;"><i class="fas fa-home"></i></th>
-                <th style="width: 7%;"><i class="fas fa-car"></i></th>
-                <th style="width: 10%;">Estado</th>
-                <th>Precio</th>
-                <th><i class="fab fa-facebook"></i></th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- <tr>
-                <td>1</td>
-                <td>Propiedad</td>
-                <td>4</td>
-                <td>150m2</td>
-                <td>2</td>
-                <td>Disponible</td>
-                <td>Precio</td>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td>Propiedad</td>
-                <td>4</td>
-                <td>150m2</td>
-                <td>2</td>
-                <td>Disponible</td>
-                <td>Precio</td>
-            </tr> -->
-        </tbody>
-        
-    </table>
-    <nav>
-        <ul class="pagination">
-            <!-- <li class="page-item"><a class="page-link" href="#1">Previous</a></li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
-        </ul>
-      </nav>
-        `;
-    }
-    getSelectedCatalog() {
-        this._catalogElement = document.querySelector("#catalog-select");
-        let selectedCatalog = {
-            id: this._catalogElement.options[this._catalogElement.selectedIndex].value,
-            value: this._catalogElement.options[this._catalogElement.selectedIndex].text
-        };
-        this._dataCatalog = selectedCatalog;
-        return this._dataCatalog;
-    }
-    catalogSubmit() {
-        return new Promise((resolve, reject)=>{
-            document.querySelector(".catalog-form").addEventListener("submit", async (e)=>{
-                e.preventDefault();
-                resolve("submitted");
-            });
-        });
+        <div>
+            <h6>Usuario de Facebook</h6>
+            <hr>
+            <div class="w-25 d-inline-block mr-4">
+            <label for="user-id-input">Id del Usuario:</label>
+            <input type="text" class="form-control" id="user-id-input" value='${this._data.user.user_id}'>
+            </div>
+            <div class="w-25 d-inline-block mr-3">
+            <label for="user-name-input">Nombre:</label>
+            <input type="text" class="form-control" id="user-name-input" value='${this._data.user.user_name}'>
+            </div><button type="submit" class="btn btn-secondary btn-logout-facebook">Cerrar Sesión</button>
+            <hr>
+            <label for="catalog-select-form">Catálogo seleccionado:</label>
+            <select class="form-control" id="catalog-select-form">
+                ${this._data.user.catalogs.map((el)=>`<option value='${el.id}' ${el.id === this._data.user.catalog ? "selected" : ""}>${el.name}</option>`).join("")}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-secondary">Confirmar</button>
+
+            
+
+
+        </div>`;
     }
     renderError(message = this._errorMessage) {
         const markup = `
@@ -1367,7 +1363,7 @@ class appView extends (0, _viewJsDefault.default) {
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
     }
 }
-exports.default = new appView();
+exports.default = new configView();
 
 },{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["gfkIy","aenu9"], "aenu9", "parcelRequire0e80")
 

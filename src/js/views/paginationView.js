@@ -63,7 +63,7 @@ class PaginationView extends View {
             //                 <use href="${icons}#icon-arrow-right"></use>
             //             </svg>
             //         </button>`;
-            return `<li class="page-item"><a class="page-link" data-goto='${curPage-1}' >Page ${curPage - 1}</a></li>
+            return `<li class="page-item"><a class="page-link" data-goto='${curPage-1}' >Pagina ${curPage - 1}</a></li>
             <li class="page-item active"><a class="page-link" >Pagina ${curPage}</a></li>
             <li class="page-item "><a class="page-link" data-goto='${curPage+1}' >Pagina ${curPage+1}</a></li>`
         }

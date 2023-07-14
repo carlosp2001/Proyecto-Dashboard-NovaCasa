@@ -71,6 +71,20 @@ export const logInFacebook = function () {
     });
 };
 
+export const logOutFacebook = function () {
+    return new Promise((resolve, reject) => {
+        FB.getLoginStatus((response) => {
+            if (response.status === 'connected') {
+                FB.logout(() => {
+                    resolve('loggedOut');
+                });
+            } else {
+                reject('No existe una sesión')
+            }
+        });
+    });
+};
+
 export const checkFacebookAuth = function () {
     return new Promise((resolve, reject) => {
         FB.init({
@@ -82,6 +96,15 @@ export const checkFacebookAuth = function () {
 
         FB.getLoginStatus(async function (response) {
             if (response.status === 'connected') {
+                console.log(response);
+                FB.api(`/me`, function (response) {
+                    console.log(response);
+                    if (!response)
+                        return reject(
+                            'No se encontro la información de tu cuenta'
+                        );
+                    state.user.user_name = response.name;
+                });
                 state.user.user_id = response.authResponse.userID;
                 new Promise((resolve, reject) => {
                     // Conseguir la el ID del negocio
