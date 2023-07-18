@@ -71,6 +71,13 @@ class configView extends View {
         };
     }
 
+    /**
+     * Esta función genera el markup que se renderizará en la página de configuraciones
+     * @this {Object} Instancia de la vista
+     * @returns {String} Regresa en forma de cadena el html generado
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     _generateMarkup() {
         return `
         <div class="mb-3">
@@ -117,6 +124,14 @@ class configView extends View {
         </div>`;
     }
 
+    /**
+     * Renderiza un error mediante un pop-up
+     * @param {String} [message=this._errorMessage] El contenido del mensaje de error
+     * @returns {undefined | string} No devuelve ningún dato
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     renderError(message = this._errorMessage) {
         const markup = `
         <div class="popup-guardado">

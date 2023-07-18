@@ -16,10 +16,7 @@ const controlResults = async function () {
         if (!model.checkForCatalog()) {
             // 2) Si la autenticación que realice se encuentra del todo bien, se muestra el popup
             // para seleccionar el catálogo al que se desea importar
-            catalogConfigAppView.render(
-                (data = model.state.user.catalogs),
-                (onlyRender = true)
-            );
+            catalogConfigAppView.render(model.state.user.catalogs);
 
             // 3) Se hace una espera con una promesa hasta que confirme al catálogo que enviaremos
             await catalogConfigAppView.catalogSubmit();
@@ -52,7 +49,6 @@ const controlResults = async function () {
         console.log(err);
         importPropertiesView._errorMessage = err;
         importPropertiesView.renderError();
-        console.log(err);
     }
 };
 
@@ -72,12 +68,12 @@ async function sleep(seconds) {
 
 const controlImportProperties = async function () {
     importPropertiesView._message = 'loading';
-    importPropertiesView.render((onlyRender = true));
+    importPropertiesView.render(undefined, true, true);
     const res = await model.importProperties();
 
     if (res.status === 'successful') {
         importPropertiesView._message = 'successful';
-        importPropertiesView.render((onlyRender = true));
+        importPropertiesView.render(undefined, true, true);
         await sleep(4);
         importPropertiesView._clear();
     } else if (res.status === 'fail') {
@@ -89,21 +85,17 @@ const controlImportProperties = async function () {
 const controlPage = (e) => {
     if (e.type === 'hashchange' || e.type === 'load') {
         const page = window.location.hash.slice(1);
+        console.log(page);
 
         function switchDashboard() {
             document.getElementById('dashboard-page').style.display = 'inline';
             document.getElementById('settings-page').style.display = 'none';
         }
-
-        if (page === 'dashboard') {
-            switchDashboard();
-        } else if (page === 'settings') {
+        if (page === 'settings') {
             document.getElementById('dashboard-page').style.display = 'none';
             document.getElementById('settings-page').style.display = 'inline';
         } else {
-            importPropertiesView._errorMessage = err;
-            importPropertiesView.renderError();
-            console.log(err);
+            switchDashboard();
         }
     }
 };

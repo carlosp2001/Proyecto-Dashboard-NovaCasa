@@ -1,3 +1,10 @@
+/**
+ * Funcion para realizar una solicitud http get
+ * @this {Object} Instancia de la llamada
+ * @returns {Object} se retorna la respuesta que nos devuelve la solicitud http
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */
 export const AJAX = async function (url) {
     try {
         // const fetchPro = uploadData
@@ -24,6 +31,14 @@ export const AJAX = async function (url) {
     }
 };
 
+/**
+ * Función para obtener una cookie por medio de su nombre
+ * @this {Object} Instancia de la llamada
+ * @returns {String|null} Si se encuentra una cookie con ese nombre se devuelve el valor de esa
+ * cookie
+ * @author Carlos Pineda
+ * @todo Finalizar implementación
+ */
 export const getCookie = function (name) {
     // Split cookie string and get all individual name=value pairs in an array
     var cookieArr = document.cookie.split(';');
@@ -40,6 +55,6 @@ export const getCookie = function (name) {
         }
     }
 
-    // Return null if not found
+    // retorna null si no encuentra la cookie
     return null;
 };

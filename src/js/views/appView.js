@@ -14,6 +14,13 @@ class appView extends View {
     _parentElement = document.querySelector('#main-app');
     _errorMessage = 'Hubo error al mostrar la página';
 
+    /**
+     * Se agrega el handler que conecta al controlador con la vista
+     * @param {Function} handler Es la función que se ejecutará al recibir una llamada por el evento
+     * @this {Object} Instancia de la vista
+     * @author Carlos Pineda
+     * @todo Finalizar implementación
+     */
     addHandlerRender(handler) {
         ['hashchange', 'load'].forEach((e) =>
             window.addEventListener(e, handler)
